@@ -17,7 +17,7 @@ MonoBehaviour:
   enemyName: Skeleton
   damage: 15
   attackCooldown: 1.5
-  chaseRange: 8
+  chaseRange: 5
   attackRange: 1.5
-  dropItemPrefab: {fileID: 0}
+  dropItemPrefab: {fileID: 3083896754068845654, guid: 7a0089ede843f49489cedd91b78033fa, type: 3}
   dropChance: 70

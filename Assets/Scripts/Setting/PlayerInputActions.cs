@@ -201,6 +201,54 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""SeaSpiritActions"",
+            ""id"": ""13d44cea-048d-41ab-8492-2cbe6c9b9542"",
+            ""actions"": [
+                {
+                    ""name"": ""SeaSpirit_ModeCycle"",
+                    ""type"": ""Button"",
+                    ""id"": ""25191ab5-1b7f-4405-8b7c-8fe9b873c6b7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SeaSpirit_Lunge"",
+                    ""type"": ""Value"",
+                    ""id"": ""acb2d9fd-95b3-4370-b113-5cec353dfaee"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""a5155728-8d1b-4483-8ad4-7202490b2aaa"",
+                    ""path"": ""<Touchscreen>/touch1/tap"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SeaSpirit_ModeCycle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""17217dd3-0806-42aa-8bfb-84931541fd3a"",
+                    ""path"": ""<Touchscreen>/touch0/startPosition"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SeaSpirit_Lunge"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -209,11 +257,16 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
+        // SeaSpiritActions
+        m_SeaSpiritActions = asset.FindActionMap("SeaSpiritActions", throwIfNotFound: true);
+        m_SeaSpiritActions_SeaSpirit_ModeCycle = m_SeaSpiritActions.FindAction("SeaSpirit_ModeCycle", throwIfNotFound: true);
+        m_SeaSpiritActions_SeaSpirit_Lunge = m_SeaSpiritActions.FindAction("SeaSpirit_Lunge", throwIfNotFound: true);
     }
 
     ~@PlayerInputActions()
     {
         UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, PlayerInputActions.Player.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_SeaSpiritActions.enabled, "This will cause a leak and performance issues, PlayerInputActions.SeaSpiritActions.Disable() has not been called.");
     }
 
     /// <summary>
@@ -392,6 +445,113 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="PlayerActions" /> instance referencing this action map.
     /// </summary>
     public PlayerActions @Player => new PlayerActions(this);
+
+    // SeaSpiritActions
+    private readonly InputActionMap m_SeaSpiritActions;
+    private List<ISeaSpiritActionsActions> m_SeaSpiritActionsActionsCallbackInterfaces = new List<ISeaSpiritActionsActions>();
+    private readonly InputAction m_SeaSpiritActions_SeaSpirit_ModeCycle;
+    private readonly InputAction m_SeaSpiritActions_SeaSpirit_Lunge;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "SeaSpiritActions".
+    /// </summary>
+    public struct SeaSpiritActionsActions
+    {
+        private @PlayerInputActions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public SeaSpiritActionsActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "SeaSpiritActions/SeaSpirit_ModeCycle".
+        /// </summary>
+        public InputAction @SeaSpirit_ModeCycle => m_Wrapper.m_SeaSpiritActions_SeaSpirit_ModeCycle;
+        /// <summary>
+        /// Provides access to the underlying input action "SeaSpiritActions/SeaSpirit_Lunge".
+        /// </summary>
+        public InputAction @SeaSpirit_Lunge => m_Wrapper.m_SeaSpiritActions_SeaSpirit_Lunge;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_SeaSpiritActions; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="SeaSpiritActionsActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(SeaSpiritActionsActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="SeaSpiritActionsActions" />
+        public void AddCallbacks(ISeaSpiritActionsActions instance)
+        {
+            if (instance == null || m_Wrapper.m_SeaSpiritActionsActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_SeaSpiritActionsActionsCallbackInterfaces.Add(instance);
+            @SeaSpirit_ModeCycle.started += instance.OnSeaSpirit_ModeCycle;
+            @SeaSpirit_ModeCycle.performed += instance.OnSeaSpirit_ModeCycle;
+            @SeaSpirit_ModeCycle.canceled += instance.OnSeaSpirit_ModeCycle;
+            @SeaSpirit_Lunge.started += instance.OnSeaSpirit_Lunge;
+            @SeaSpirit_Lunge.performed += instance.OnSeaSpirit_Lunge;
+            @SeaSpirit_Lunge.canceled += instance.OnSeaSpirit_Lunge;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="SeaSpiritActionsActions" />
+        private void UnregisterCallbacks(ISeaSpiritActionsActions instance)
+        {
+            @SeaSpirit_ModeCycle.started -= instance.OnSeaSpirit_ModeCycle;
+            @SeaSpirit_ModeCycle.performed -= instance.OnSeaSpirit_ModeCycle;
+            @SeaSpirit_ModeCycle.canceled -= instance.OnSeaSpirit_ModeCycle;
+            @SeaSpirit_Lunge.started -= instance.OnSeaSpirit_Lunge;
+            @SeaSpirit_Lunge.performed -= instance.OnSeaSpirit_Lunge;
+            @SeaSpirit_Lunge.canceled -= instance.OnSeaSpirit_Lunge;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="SeaSpiritActionsActions.UnregisterCallbacks(ISeaSpiritActionsActions)" />.
+        /// </summary>
+        /// <seealso cref="SeaSpiritActionsActions.UnregisterCallbacks(ISeaSpiritActionsActions)" />
+        public void RemoveCallbacks(ISeaSpiritActionsActions instance)
+        {
+            if (m_Wrapper.m_SeaSpiritActionsActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="SeaSpiritActionsActions.AddCallbacks(ISeaSpiritActionsActions)" />
+        /// <seealso cref="SeaSpiritActionsActions.RemoveCallbacks(ISeaSpiritActionsActions)" />
+        /// <seealso cref="SeaSpiritActionsActions.UnregisterCallbacks(ISeaSpiritActionsActions)" />
+        public void SetCallbacks(ISeaSpiritActionsActions instance)
+        {
+            foreach (var item in m_Wrapper.m_SeaSpiritActionsActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_SeaSpiritActionsActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="SeaSpiritActionsActions" /> instance referencing this action map.
+    /// </summary>
+    public SeaSpiritActionsActions @SeaSpiritActions => new SeaSpiritActionsActions(this);
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Player" which allows adding and removing callbacks.
     /// </summary>
@@ -413,5 +573,27 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInteract(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "SeaSpiritActions" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="SeaSpiritActionsActions.AddCallbacks(ISeaSpiritActionsActions)" />
+    /// <seealso cref="SeaSpiritActionsActions.RemoveCallbacks(ISeaSpiritActionsActions)" />
+    public interface ISeaSpiritActionsActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "SeaSpirit_ModeCycle" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSeaSpirit_ModeCycle(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SeaSpirit_Lunge" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSeaSpirit_Lunge(InputAction.CallbackContext context);
     }
 }

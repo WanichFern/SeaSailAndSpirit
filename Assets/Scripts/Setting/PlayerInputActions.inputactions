@@ -115,6 +115,54 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "SeaSpiritActions",
+            "id": "13d44cea-048d-41ab-8492-2cbe6c9b9542",
+            "actions": [
+                {
+                    "name": "SeaSpirit_ModeCycle",
+                    "type": "Button",
+                    "id": "25191ab5-1b7f-4405-8b7c-8fe9b873c6b7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SeaSpirit_Lunge",
+                    "type": "Value",
+                    "id": "acb2d9fd-95b3-4370-b113-5cec353dfaee",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "a5155728-8d1b-4483-8ad4-7202490b2aaa",
+                    "path": "<Touchscreen>/touch1/tap",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SeaSpirit_ModeCycle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "17217dd3-0806-42aa-8bfb-84931541fd3a",
+                    "path": "<Touchscreen>/touch0/startPosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SeaSpirit_Lunge",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

@@ -17,7 +17,7 @@ MonoBehaviour:
   enemyName: Eye
   damage: 15
   attackCooldown: 2.5
-  chaseRange: 5
+  chaseRange: 2
   attackRange: 2
   dropItemPrefab: {fileID: 0}
   dropChance: 90

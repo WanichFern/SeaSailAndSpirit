@@ -17,7 +17,7 @@ MonoBehaviour:
   enemyName: Zombie
   damage: 10
   attackCooldown: 2
-  chaseRange: 6
+  chaseRange: 3
   attackRange: 1.5
   dropItemPrefab: {fileID: 0}
   dropChance: 50

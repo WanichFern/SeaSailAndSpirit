@@ -67,7 +67,7 @@ public class IslandGenerator : MonoBehaviour
             floorCollider.transform.position = worldPos;
 
             BoxCollider bc = floorCollider.AddComponent<BoxCollider>();
-            bc.size = new Vector3(3f, 0.1f, 3f);
+            bc.size = new Vector3(2f, 0.1f, 2f);
         }
 
         PopulateIsland(landPositions);
