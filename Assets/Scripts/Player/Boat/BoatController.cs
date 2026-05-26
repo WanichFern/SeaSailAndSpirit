@@ -1,11 +1,7 @@
 using UnityEngine;
+using System.Collections;
 
-public enum BoatState
-{
-    Docked,
-    Sailing,
-    AtIsland
-}
+public enum BoatState { Docked, SailingToIsland, SailingHome }
 
 public class BoatController : MonoBehaviour
 {
@@ -14,192 +10,183 @@ public class BoatController : MonoBehaviour
     [Header("Sailing Settings")]
     public float sailSpeed = 8f;
     public float playerMoveSpeed = 5f;
-    public float verticalClamp = 5f;   // max up/down from center
-    public float centerZ = 0f;         // the Z center of the sea lane
+    public float verticalClamp = 5f;
+    public float centerZ = 0f;
+
+    [Header("Island Settings")]
+    public float islandXPosition = 150f; // must match IslandGenerator offset
+    public float homeXPosition = 0f;     // main island X center
 
     [Header("References")]
-    public Transform playerSeatPoint;  // where player sits on boat
-    public LandingMarker landingMarker;
-    public SpriteRenderer boatVisualRenderer;
-
-    [Header("Dock")]
-    public Transform dockSpawnPoint;   // assigned by BoatDock
+    public Transform playerSeatPoint;
+    public Transform dockSpawnPoint;
+    public Transform dockLanding;
+    public ScreenFader fader;
 
     private BoatState state = BoatState.Docked;
-    private PlayerMovement playerMovement;
-    private PlayerStats playerStats;
     private Rigidbody rb;
+    private PlayerMovement playerMovement;
     private bool playerOnBoard = false;
     private SpriteRenderer boatSprite;
 
-    public bool IsPlayerOnBoard => playerOnBoard;
+    // Track which direction we're going clearly
+    private bool headingToIsland = true;
+
+    public bool IsHeadingToIsland =>
+    state == BoatState.SailingToIsland;
 
     void Awake()
     {
         Instance = this;
         rb = GetComponent<Rigidbody>();
+        boatSprite = GetComponentInChildren<SpriteRenderer>();
     }
 
-    void UpdateBoatFacing()
+    public void BoardBoat()
     {
-        if (boatSprite != null)
-            boatSprite.flipX = sailDirection < 0;
-    }
+        if (playerOnBoard) return;
 
-    // Called when player interacts with the boat at dock
-    public void TryBoard()
-    {
-        if (state == BoatState.Docked && !playerOnBoard)
-        {
-            BoardBoat();
-        }
-        else if (state == BoatState.AtIsland && playerOnBoard)
-        {
-            ExitBoat();
-        }
-    }
-
-    void BoardBoat()
-    {
         GameObject playerObj =
             GameObject.FindGameObjectWithTag("Player");
         playerMovement = playerObj.GetComponent<PlayerMovement>();
-        playerStats = playerObj.GetComponent<PlayerStats>();
 
-        if (playerObj.transform.position.x > 50f)
-            sailDirection = -1f;
+        // Decide direction based on boat's CURRENT X position
+        // If boat is close to island → go home
+        // If boat is close to home → go to island
+        float distToIsland = Mathf.Abs(
+            transform.position.x - islandXPosition);
+        float distToHome = Mathf.Abs(
+            transform.position.x - homeXPosition);
+
+        if (distToIsland < distToHome)
+        {
+            // Boat is near island — sail home
+            headingToIsland = false;
+            state = BoatState.SailingHome;
+            Debug.Log("Sailing HOME");
+        }
         else
         {
-            sailDirection = 1f;
+            // Boat is near home — sail to island
+            headingToIsland = true;
+            state = BoatState.SailingToIsland;
             IslandGenerator.Instance.GenerateNewIsland();
+            Debug.Log("Sailing to ISLAND");
         }
 
-        playerObj.transform.position = playerSeatPoint.position
-            + Vector3.up * 3f;
+        // Put player on boat
+        playerObj.transform.position =
+            playerSeatPoint.position + Vector3.up * 0.5f;
         playerObj.transform.SetParent(transform);
-
-        // Pass boat reference so player locks to seat
         playerMovement.SetBoatMode(true, verticalClamp, centerZ, this);
         playerOnBoard = true;
-        state = BoatState.Sailing;
 
-        BoatProximityUI.Instance?.ForceHide();
         UpdateBoatFacing();
+        BoatProximityUI.Instance?.ForceHide();
     }
-
-    void ExitBoat()
-    {
-        GameObject playerObj =
-            GameObject.FindGameObjectWithTag("Player");
-
-        // Detach player from boat
-        playerObj.transform.SetParent(null);
-        playerMovement.SetBoatMode(false, 0, 0);
-
-        playerOnBoard = false;
-        state = BoatState.Docked; // boat stays, player is off
-
-        landingMarker?.Hide();
-
-        ZoneTrigger.DropIslandCam();
-
-        Debug.Log("Exited boat on island!");
-    }
-
-    private float sailDirection = 1f; // +1 = right, -1 = left
 
     void FixedUpdate()
     {
         if (!playerOnBoard) return;
 
         Vector3 pos = rb.position;
+        float vertInput = playerMovement?.GetInputVector().y ?? 0f;
 
-        if (state == BoatState.Sailing)
+        if (state == BoatState.SailingToIsland)
         {
-            // Auto-sail horizontally
-            pos.x += sailDirection * sailSpeed * Time.fixedDeltaTime;
-
-            // Player input controls vertical (Z axis)
-            float verticalInput = GetPlayerVerticalInput();
-            pos.z += verticalInput * playerMoveSpeed * Time.fixedDeltaTime;
-
-            // Clamp Z in sea zone
-            pos.z = Mathf.Clamp(pos.z,
-                centerZ - verticalClamp,
-                centerZ + verticalClamp);
+            pos.x += sailSpeed * Time.fixedDeltaTime;
         }
-        else if (state == BoatState.AtIsland)
+        else if (state == BoatState.SailingHome)
         {
-            // Free movement around island — player steers with joystick
-            float verticalInput = GetPlayerVerticalInput();
-            float horizontalInput = GetPlayerHorizontalInput();
-
-            pos.x += horizontalInput * playerMoveSpeed * Time.fixedDeltaTime;
-            pos.z += verticalInput * playerMoveSpeed * Time.fixedDeltaTime;
-
-            // Clamp around island area
-            pos.x = Mathf.Clamp(pos.x, 120f, 180f);
-            pos.z = Mathf.Clamp(pos.z, -30f, 30f);
+            pos.x -= sailSpeed * Time.fixedDeltaTime;
         }
+
+        // Vertical input always works while sailing
+        pos.z += vertInput * playerMoveSpeed * Time.fixedDeltaTime;
+        pos.z = Mathf.Clamp(pos.z,
+            centerZ - verticalClamp,
+            centerZ + verticalClamp);
 
         rb.MovePosition(pos);
     }
 
-    float GetPlayerVerticalInput()
+    // Called by ZoneTrigger — island zone entered
+    public void OnReachedIsland()
     {
-        PlayerMovement pm = GameObject
-            .FindGameObjectWithTag("Player")
-            ?.GetComponent<PlayerMovement>();
-        return pm != null ? pm.GetInputVector().y : 0f;
+        // Only handle if we're actually heading to island
+        if (state != BoatState.SailingToIsland) return;
+        StartCoroutine(ArriveAtIsland());
     }
 
-    float GetPlayerHorizontalInput()
+    // Called by ZoneTrigger — exited sea zone on home side
+    public void OnReachedHome()
     {
-        PlayerMovement pm = GameObject
-            .FindGameObjectWithTag("Player")
-            ?.GetComponent<PlayerMovement>();
-        return pm != null ? pm.GetInputVector().x : 0f;
+        // Only handle if we're actually heading home
+        if (state != BoatState.SailingHome) return;
+        StartCoroutine(ArriveAtHome());
     }
 
-    public void EnterIslandZone()
+    IEnumerator ArriveAtIsland()
     {
-        state = BoatState.AtIsland;
-        landingMarker?.Show();
-        Debug.Log("Entered island zone!");
-    }
+        // Stop sailing while coroutine runs
+        state = BoatState.Docked;
 
-    // Called by ZoneTrigger when exiting sea zone going back home
-    public void EnterHomeZone()
-    {
-        if (playerOnBoard)
-        {
-            // Auto-dock when reaching home
-            ReturnToDock();
-        }
-    }
+        yield return fader.Fade(true);
 
-
-    void ReturnToDock()
-    {
         GameObject playerObj =
             GameObject.FindGameObjectWithTag("Player");
 
         playerObj.transform.SetParent(null);
-        playerMovement.SetBoatMode(false, 0, 0);
-
-        // Transfer items to chest
-        InventoryManager.Instance.TransferToChest();
-
+        playerMovement.SetBoatMode(false, 0, 0, null);
         playerOnBoard = false;
+
+        // Spawn player at island center
+        Vector3 islandCenter = IslandGenerator.Instance
+            .GetIslandCenter();
+        playerObj.transform.position = islandCenter;
+
+        // Move boat to random edge of island
+        Vector3 edgePos = IslandGenerator.Instance
+            .GetRandomEdgePosition();
+        transform.position = edgePos;
+
+        yield return fader.Fade(false);
+
+        Debug.Log("Arrived at island!");
+    }
+
+    IEnumerator ArriveAtHome()
+    {
+        // Stop sailing while coroutine runs
         state = BoatState.Docked;
+
+        yield return fader.Fade(true);
+
+        GameObject playerObj =
+            GameObject.FindGameObjectWithTag("Player");
+
+        playerObj.transform.SetParent(null);
+        playerMovement.SetBoatMode(false, 0, 0, null);
+        playerOnBoard = false;
+
+        // Spawn player at dock landing
+        playerObj.transform.position = dockLanding.position;
+
+        PlayerStats stats = playerObj.GetComponent<PlayerStats>();
+        if (stats != null)
+        {
+            stats.currentHP = stats.totalMaxHP;
+            Debug.Log("Player healed to full HP on return home.");
+        }
 
         // Move boat back to dock
         transform.position = dockSpawnPoint.position;
 
-        Debug.Log("Returned home! Items transferred to chest.");
+        yield return fader.Fade(false);
+
+        Debug.Log("Returned home!");
     }
 
-    // Called when player dies on the island
     public void RespawnAtDock()
     {
         if (playerOnBoard)
@@ -207,12 +194,18 @@ public class BoatController : MonoBehaviour
             GameObject playerObj =
                 GameObject.FindGameObjectWithTag("Player");
             playerObj.transform.SetParent(null);
-            playerMovement.SetBoatMode(false, 0, 0);
+            playerMovement?.SetBoatMode(false, 0, 0, null);
             playerOnBoard = false;
         }
 
-        state = BoatState.Docked;
         transform.position = dockSpawnPoint.position;
+        state = BoatState.Docked;
         Debug.Log("Boat respawned at dock.");
+    }
+
+    void UpdateBoatFacing()
+    {
+        if (boatSprite != null)
+            boatSprite.flipX = !headingToIsland;
     }
 }

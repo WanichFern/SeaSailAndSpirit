@@ -40,4 +40,9 @@ public class PlayerAnimationController : MonoBehaviour
     {
         animator.SetTrigger("IsInteracting");
     }
+
+    //public void TriggerDeath()
+    //{
+    //    animator.SetBool("IsDead", true);
+    //}
 }

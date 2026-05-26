@@ -24,6 +24,9 @@ public class IslandGenerator : MonoBehaviour
     private List<GameObject> spawnedObjects = new List<GameObject>();
     private GameObject colliderContainer;
 
+    private HashSet<Vector3Int> currentLandPositions
+    = new HashSet<Vector3Int>();
+
     void Awake()
     {
         Instance = this;
@@ -107,6 +110,7 @@ public class IslandGenerator : MonoBehaviour
             BoxCollider bc = floorCollider.AddComponent<BoxCollider>();
             bc.size = new Vector3(3f, 0.1f, 3f);
         }
+        currentLandPositions = landPositions;
 
         PopulateIsland(landPositions);
     }
@@ -169,9 +173,53 @@ public class IslandGenerator : MonoBehaviour
             prefabToSpawn, spawnPos,
             Quaternion.identity, transform);
     }
+    public Vector3 GetIslandCenter()
+    {
+        Vector3 center = groundTilemap.transform.position;
+        // Island center is at the tilemap offset + small Y offset
+        return new Vector3(center.x, 0.5f, center.z);
+    }
 
-    // Called when player drops an item on the island
-    // so we can track it for cleanup
+    // Returns a random position at the edge of the island
+    public Vector3 GetRandomEdgePosition()
+    {
+        if (currentLandPositions == null
+            || currentLandPositions.Count == 0)
+            return new Vector3(150f, 0.5f, 0f);
+
+        // Find edge tiles (tiles that have a neighbor outside the island)
+        List<Vector3Int> edgeTiles = new List<Vector3Int>();
+        Vector3Int[] directions = {
+        Vector3Int.up, Vector3Int.down,
+        Vector3Int.left, Vector3Int.right
+    };
+
+        foreach (var pos in currentLandPositions)
+        {
+            foreach (var dir in directions)
+            {
+                if (!currentLandPositions.Contains(pos + dir))
+                {
+                    edgeTiles.Add(pos);
+                    break;
+                }
+            }
+        }
+
+        // Pick a random edge tile
+        if (edgeTiles.Count > 0)
+        {
+            Vector3Int randomEdge =
+                edgeTiles[Random.Range(0, edgeTiles.Count)];
+            Vector3 worldPos =
+                groundTilemap.GetCellCenterWorld(randomEdge);
+            worldPos.y = 0.5f;
+            return worldPos;
+        }
+
+        return new Vector3(150f, 0.5f, 0f);
+    }
+
     public void RegisterDroppedItem(GameObject item)
     {
         spawnedObjects.Add(item);

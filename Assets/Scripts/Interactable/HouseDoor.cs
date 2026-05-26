@@ -18,12 +18,15 @@ public class HouseDoor : MonoBehaviour, IInteractable
         yield return fader.Fade(true);
 
         player.position = destination.position;
-        seaSpirit.transform.position = destination.position + new Vector3(1, 1, 0);
+        seaSpirit.transform.position =
+            destination.position + new Vector3(1, 1, 0);
 
         InventoryManager.Instance.TransferToChest();
 
-        yield return new WaitForSeconds(0.5f);
+        // Save after items are transferred to chest
+        SaveManager.Instance?.SaveGame();
 
+        yield return new WaitForSeconds(0.5f);
         yield return fader.Fade(false);
     }
 }

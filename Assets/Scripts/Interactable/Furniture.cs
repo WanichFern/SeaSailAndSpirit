@@ -12,7 +12,7 @@ public class Requirement
 public class UpgradeLevel
 {
     public List<Requirement> requirements;
-    public StatType statType;  // ← was string, now enum
+    public StatType statType;
     public float bonusValue;
 }
 
@@ -21,11 +21,13 @@ public class Furniture : MonoBehaviour, IInteractable
     public string furnitureName;
     public int currentLevel = 0;
     public List<UpgradeLevel> upgradeLevels;
-    public GameObject upgradePanel;
-    public Transform itemContent;
+    public GameObject upgradePanel; // keep for reference but don't toggle directly
 
     private Transform player;
-    public float closeDistance = 3f;
+    private float closeDistance = 2f;
+    private bool isOpen = false;
+    private float openTime = 0f;
+    private float openDelay = 0.3f;
 
     void Start()
     {
@@ -34,8 +36,29 @@ public class Furniture : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        upgradePanel.SetActive(true);
+        Debug.Log($"Furniture.Interact() called on {furnitureName}");
+        isOpen = true;
+        openTime = Time.time;
         UpgradeUIManager.Instance.OpenUpgradeMenu(this);
+    }
+
+    // Called by UpgradeUIManager when confirmed or ad completed
+    public void ClosePanel()
+    {
+        isOpen = false;
+    }
+
+    void Update()
+    {
+        if (!isOpen) return;
+        if (Time.time < openTime + openDelay) return;
+
+        if (Vector3.Distance(transform.position, player.position)
+            > closeDistance)
+        {
+            isOpen = false;
+            UpgradeUIManager.Instance.ClosePanel();
+        }
     }
 
     public void PerformUpgrade()
@@ -50,7 +73,8 @@ public class Furniture : MonoBehaviour, IInteractable
 
         foreach (var req in next.requirements)
         {
-            if (!ChestInventoryManager.Instance.HasEnoughItems(req.itemName, req.amount))
+            if (!ChestInventoryManager.Instance.HasEnoughItems(
+                req.itemName, req.amount))
             {
                 Debug.Log($"Not enough {req.itemName}");
                 return;
@@ -58,45 +82,54 @@ public class Furniture : MonoBehaviour, IInteractable
         }
 
         foreach (var req in next.requirements)
-            ChestInventoryManager.Instance.ConsumeItems(req.itemName, req.amount);
+            ChestInventoryManager.Instance.ConsumeItems(
+                req.itemName, req.amount);
 
+        ApplyBonus(next);
+        currentLevel++;
+        Debug.Log($"{furnitureName} upgraded to level {currentLevel}!");
+
+        SaveManager.Instance?.SaveGame();
+    }
+
+    public void PerformFreeUpgrade()
+    {
+        if (currentLevel >= upgradeLevels.Count)
+        {
+            Debug.Log("Max Level!");
+            return;
+        }
+
+        ApplyBonus(upgradeLevels[currentLevel]);
+        currentLevel++;
+        Debug.Log($"{furnitureName} free upgraded to level {currentLevel}!");
+
+        SaveManager.Instance?.SaveGame();
+    }
+
+    // Extracted to avoid duplicating the switch in both upgrade methods
+    void ApplyBonus(UpgradeLevel level)
+    {
         PlayerStats playerStats = GameObject
             .FindGameObjectWithTag("Player")
             .GetComponent<PlayerStats>();
 
-        switch (next.statType)
+        switch (level.statType)
         {
             case StatType.MaxHP:
-                playerStats.bonusMaxHP += next.bonusValue;
-                break;
+                playerStats.bonusMaxHP += level.bonusValue; break;
             case StatType.Defense:
-                playerStats.bonusDefense += next.bonusValue;
-                break;
+                playerStats.bonusDefense += level.bonusValue; break;
             case StatType.SwordDamage:
-                playerStats.bonusSwordDamage += next.bonusValue;
-                break;
+                playerStats.bonusSwordDamage += level.bonusValue; break;
             case StatType.AxeDamage:
-                playerStats.bonusAxeDamage += next.bonusValue;
-                break;
+                playerStats.bonusAxeDamage += level.bonusValue; break;
             case StatType.PickaxeDamage:
-                playerStats.bonusPickaxeDamage += next.bonusValue;
-                break;
+                playerStats.bonusPickaxeDamage += level.bonusValue; break;
             case StatType.WalkSpeed:
-                playerStats.bonusWalkSpeed += next.bonusValue;
-                break;
+                playerStats.bonusWalkSpeed += level.bonusValue; break;
         }
 
         playerStats.CalculateStats();
-        currentLevel++;
-        Debug.Log($"{furnitureName} upgraded to level {currentLevel}!");
-    }
-
-    void Update()
-    {
-        if (upgradePanel.activeSelf &&
-            Vector3.Distance(transform.position, player.position) > closeDistance)
-        {
-            upgradePanel.SetActive(false);
-        }
     }
 }

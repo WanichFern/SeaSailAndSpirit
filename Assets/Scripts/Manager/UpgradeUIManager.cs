@@ -24,6 +24,12 @@ public class UpgradeUIManager : MonoBehaviour
 
     public void OpenUpgradeMenu(Furniture furniture)
     {
+        if (upgradePanel == null)
+        {
+            Debug.LogError("UpgradePanel not assigned in UpgradeUIManager!");
+            return;
+        }
+
         currentFurniture = furniture;
         upgradePanel.SetActive(true);
 
@@ -33,9 +39,7 @@ public class UpgradeUIManager : MonoBehaviour
         if (furniture.currentLevel < furniture.upgradeLevels.Count)
         {
             var nextLevel = furniture.upgradeLevels[furniture.currentLevel];
-
             statText.text = $"{nextLevel.statType} +{nextLevel.bonusValue}";
-
             DrawRequirements(nextLevel.requirements);
         }
         else
@@ -44,6 +48,15 @@ public class UpgradeUIManager : MonoBehaviour
             foreach (Transform child in reqContainer)
                 Destroy(child.gameObject);
         }
+
+        Debug.Log($"UpgradePanel opened for {furniture.furnitureName}");
+    }
+
+    // Called by furniture when player walks away
+    public void ClosePanel()
+    {
+        upgradePanel.SetActive(false);
+        currentFurniture = null;
     }
 
     private void DrawRequirements(List<Requirement> requirements)
@@ -54,7 +67,8 @@ public class UpgradeUIManager : MonoBehaviour
         foreach (var req in requirements)
         {
             GameObject slot = Instantiate(reqSlotPrefab, reqContainer);
-            slot.GetComponent<UpgradeRequirementSlot>().Setup(req.itemName, req.amount);
+            slot.GetComponent<UpgradeRequirementSlot>()
+                .Setup(req.itemName, req.amount);
         }
     }
 
@@ -63,7 +77,34 @@ public class UpgradeUIManager : MonoBehaviour
         if (currentFurniture != null)
         {
             currentFurniture.PerformUpgrade();
-            upgradePanel.SetActive(false);
+            ClosePanel();
+            // Tell furniture to reset its open state
+            currentFurniture?.ClosePanel();
         }
+    }
+
+    public void WatchAdForFreeUpgrade()
+    {
+        if (!RewardedAdController.Instance.IsReady())
+        {
+            Debug.Log("Ad not ready yet!");
+            return;
+        }
+
+        RewardedAdController.Instance.TryShowRewarded(
+            onRewardGranted: () =>
+            {
+                if (currentFurniture != null)
+                {
+                    currentFurniture.PerformFreeUpgrade();
+                    ClosePanel();
+                    currentFurniture?.ClosePanel();
+                }
+            },
+            onFailed: () =>
+            {
+                Debug.Log("Ad not completed.");
+            }
+        );
     }
 }

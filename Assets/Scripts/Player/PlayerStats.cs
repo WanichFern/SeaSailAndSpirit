@@ -12,6 +12,7 @@ public class PlayerStats : MonoBehaviour
     public float bonusAxeDamage;
     public float bonusPickaxeDamage;
     public float bonusWalkSpeed;
+    public int bonusMaxInventory;
 
     [Header("Total Stats (Used in Game)")]
     public float totalMaxHP;
@@ -48,29 +49,45 @@ public class PlayerStats : MonoBehaviour
         totalAxeDamage = playerBaseStats.axeDamage + bonusAxeDamage;
         totalPickaxeDamage = playerBaseStats.pickaxeDamage + bonusPickaxeDamage;
         totalWalkSpeed = playerBaseStats.walkSpeed + bonusWalkSpeed;
+        maxInventory = playerBaseStats.inventoryCapacity + bonusMaxInventory;
 
         // ค่าที่ไม่เปลี่ยน (ดึงตรงจาก SO)
         attackCooldown = playerBaseStats.attackCooldown;
         gatherCooldown = playerBaseStats.gatherCooldown;
-        maxInventory = playerBaseStats.inventoryCapacity;
     }
 
     public void TakeDamage(float amount)
     {
         float finalDamage = Mathf.Max(amount - totalDefense, 0);
         currentHP -= finalDamage;
-        Debug.Log($"Player takes {finalDamage} damage. HP left: {currentHP}");
 
-        if (currentHP <= 0) Respawn();
+        if (currentHP <= 0) Die();
+    }
+
+    void Die()
+    {
+        currentHP = 0;
+
+        ReviveUI.Instance.Show(
+            reviveAction: () =>
+            {
+                currentHP = totalMaxHP * 0.5f;
+                Debug.Log("Player revived!");
+            },
+            declineAction: () =>
+            {
+                Respawn();
+            }
+        );
     }
 
     void Respawn()
     {
-        Debug.Log("Respawning...");
         transform.position = respawnPoint.position;
         currentHP = totalMaxHP;
         InventoryManager.Instance.ClearInventoryOnDeath();
-
         BoatController.Instance?.RespawnAtDock();
+
+        SaveManager.Instance?.LoadGame();
     }
 }

@@ -79,12 +79,11 @@ public class BoatProximityUI : MonoBehaviour
         boatButtonPanel.SetActive(false);
     }
 
-    // This is what the button calls OnClick
     public void OnBoatButtonPressed()
     {
         if (nearbyBoat != null)
         {
-            nearbyBoat.TryBoard();
+            nearbyBoat.BoardBoat(); // was Interact()
             HideButton();
         }
     }

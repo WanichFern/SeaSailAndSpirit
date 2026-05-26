@@ -25,22 +25,29 @@ public class GameManager : MonoBehaviour
 
     public void PauseGame()
     {
-        isPaused = true;
-        Time.timeScale = 0f; // หยุดเวลาในเกมทั้งหมด (ฟิสิกส์, อนิเมชั่นที่อิง deltaTime)
+        if (isPaused) return;
 
-        hudUI.SetActive(false);      // ซ่อน UI ปกติ
-        pauseMenuUI.SetActive(true); // แสดงหน้าเมนูหยุด
+        isPaused = true;
+        Time.timeScale = 0f;
+        hudUI.SetActive(false);
+        pauseMenuUI.SetActive(true);
+
+        SaveManager.Instance?.LoadGame();
+
+        // Show banner on pause
+        BannerAdController.Instance?.LoadAndShowBanner();
     }
 
     public void ResumeGame()
     {
+        if (!isPaused) return;
+
         isPaused = false;
-        Time.timeScale = 1f; // ให้เวลาเดินตามปกติ
+        Time.timeScale = 1f;
+        hudUI.SetActive(true);
+        pauseMenuUI.SetActive(false);
 
-        hudUI.SetActive(true);       // แสดง UI ปกติ
-        pauseMenuUI.SetActive(false); // ซ่อนหน้าเมนูหยุด
+        // Hide banner when resuming
+        BannerAdController.Instance?.HideBanner();
     }
-
-    // ฟังก์ชันเสริมสำหรับเช็คสถานะจากสคริปต์อื่น
-    public bool IsGamePaused() => isPaused;
 }
