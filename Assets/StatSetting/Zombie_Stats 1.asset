@@ -19,5 +19,5 @@ MonoBehaviour:
   attackCooldown: 2
   chaseRange: 3
   attackRange: 1.5
-  dropItemPrefab: {fileID: 0}
+  dropItemPrefab: {fileID: 3083896754068845654, guid: 9e226b93fd3ff6541ab4c1f047144b2f, type: 3}
   dropChance: 50

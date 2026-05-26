@@ -1,17 +1,26 @@
 using UnityEngine;
 
-public class EnemyAI : MonoBehaviour
+public class EnemyAI : MonoBehaviour, IDamageable
 {
-    public EnemyStatsSO enemyStats; // ลาก SO ของศัตรูแต่ละตัวมาใส่ที่นี่
+    public EnemyStatsSO enemyStats;
+
+    [Header("Animation Setup")]
+    public Animator animator;          
+    public SpriteRenderer spriteRenderer;
 
     private Transform player;
     private float currentHP;
     private float lastAttackTime;
 
+    private bool isMovingThisFrame;
+
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
         if (enemyStats != null) currentHP = enemyStats.maxHP;
+
+        if (animator == null) animator = GetComponentInChildren<Animator>();
+        if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
     }
 
     void Update()
@@ -19,6 +28,7 @@ public class EnemyAI : MonoBehaviour
         if (player == null || enemyStats == null) return;
 
         float distance = Vector3.Distance(transform.position, player.position);
+        isMovingThisFrame = false;
 
         if (distance <= enemyStats.attackRange)
         {
@@ -28,6 +38,8 @@ public class EnemyAI : MonoBehaviour
         {
             ChasePlayer();
         }
+
+        UpdateAnimationState();
     }
 
     void ChasePlayer()
@@ -35,12 +47,30 @@ public class EnemyAI : MonoBehaviour
         Vector3 direction = (player.position - transform.position).normalized;
         direction.y = 0;
         transform.position += direction * enemyStats.walkSpeed * Time.deltaTime;
+
+        isMovingThisFrame = true;
+
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.flipX = (direction.x < 0);
+        }
     }
 
     void Attack()
     {
+        if (spriteRenderer != null)
+        {
+            Vector3 direction = (player.position - transform.position).normalized;
+            spriteRenderer.flipX = (direction.x < 0);
+        }
+
         if (Time.time >= lastAttackTime + enemyStats.attackCooldown)
         {
+            if (animator != null)
+            {
+                animator.SetTrigger("Attack");
+            }
+
             PlayerStats pStats = player.GetComponent<PlayerStats>();
             if (pStats != null)
             {
@@ -48,6 +78,14 @@ public class EnemyAI : MonoBehaviour
                 lastAttackTime = Time.time;
             }
         }
+    }
+
+    void UpdateAnimationState()
+    {
+        if (animator == null) return;
+
+        int stateValue = isMovingThisFrame ? 1 : 0;
+        animator.SetInteger("State", stateValue);
     }
 
     public void TakeDamage(float damage)
@@ -58,7 +96,6 @@ public class EnemyAI : MonoBehaviour
 
     void Die()
     {
-        // ระบบดรอปไอเทมก่อนทำลายตัวเอง
         DropLoot();
         Destroy(gameObject);
     }
@@ -67,7 +104,6 @@ public class EnemyAI : MonoBehaviour
     {
         if (enemyStats.dropItemPrefab != null)
         {
-            // สุ่มโอกาสดรอป (Algorithm: Probability Check)
             float randomRoll = Random.Range(0f, 100f);
             if (randomRoll <= enemyStats.dropChance)
             {

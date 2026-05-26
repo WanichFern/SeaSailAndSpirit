@@ -26,10 +26,12 @@ public class SeaSpiritAI : MonoBehaviour
 
     private Vector3 currentVelocity = Vector3.zero;
     private bool isLunging = false;
+    private SeaSpiritAnimationController animController;
 
     void Start()
     {
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        animController = GetComponentInChildren<SeaSpiritAnimationController>();
     }
 
     void Update()
@@ -268,6 +270,8 @@ public class SeaSpiritAI : MonoBehaviour
     {
         isLunging = true;
 
+        if (animController != null) animController.SetLungeAnimation(true);
+
         Vector3 startPos = transform.position;
         Vector3 targetPos = startPos + direction * distance;
         Vector3 relativeTarget = targetPos - player.position;
@@ -296,5 +300,7 @@ public class SeaSpiritAI : MonoBehaviour
         transform.position = targetPos;
         yield return new WaitForSeconds(lungeCooldown);
         isLunging = false;
+
+        if (animController != null) animController.SetLungeAnimation(false);
     }
 }

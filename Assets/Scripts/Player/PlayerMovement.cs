@@ -4,38 +4,37 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     public Rigidbody rb;
-    private Vector2 inputVector = Vector2.zero;
+    public Vector2 inputVector = Vector2.zero;
     private PlayerInputActions controls;
     private PlayerStats pStats;
+    private BoatController currentBoat;
+    public Vector2 GetInputVector() => inputVector;
 
     public float FacingDirection { get; private set; } = 1f;
 
-    // 1. ฟังก์ชันนี้จะถูกเรียกตอนสร้าง Object
+    // Boat mode fields
+    private bool inBoatMode = false;
+    private float boatVerticalClamp = 5f;
+    private float boatCenterZ = 0f;
+
     void Awake()
     {
         InitInput();
-        controls = new PlayerInputActions();
-        // เชื่อมต่อกับ Script PlayerStats ที่อยู่ในตัวละครเดียวกัน
         pStats = GetComponent<PlayerStats>();
     }
 
-    // 2. ฟังก์ชันเช็คความปลอดภัย (ถ้ายังไม่มี controls ให้สร้างใหม่)
     void InitInput()
     {
         if (controls == null)
-        {
             controls = new PlayerInputActions();
-        }
     }
 
-    // 3. เมื่อเปิดใช้งาน Component
     void OnEnable()
     {
-        InitInput(); // เช็คอีกรอบเพื่อความชัวร์
+        InitInput();
         controls.Enable();
     }
 
-    // 4. เมื่อปิดการใช้งาน ใช้เครื่องหมาย ?. (แปลว่า ถ้ามีค่าถึงจะสั่ง Disable ป้องกัน Null)
     void OnDisable()
     {
         controls?.Disable();
@@ -45,22 +44,55 @@ public class PlayerMovement : MonoBehaviour
     {
         inputVector = controls.Player.Move.ReadValue<Vector2>();
 
-        // ถ้ามี input ทางซ้าย/ขวา → อัปเดตทิศ
         if (Mathf.Abs(inputVector.x) > 0.1f)
-        {
             FacingDirection = Mathf.Sign(inputVector.x);
+    }
+
+    public void SetBoatMode(bool enabled, float clamp,
+    float centerZ, BoatController boat = null)
+    {
+        inBoatMode = enabled;
+        boatVerticalClamp = clamp;
+        boatCenterZ = centerZ;
+        currentBoat = boat;
+
+        if (rb != null)
+        {
+            if (enabled)
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.isKinematic = true;
+            }
+            else
+            {
+                rb.isKinematic = false;
+                currentBoat = null;
+            }
         }
     }
 
-    // แก้ไขแค่ฟังก์ชัน FixedUpdate ใน PlayerMovement.cs
     void FixedUpdate()
     {
-        Vector3 movement = new Vector3(inputVector.x, 0, inputVector.y);
-
-        if (movement.magnitude > 0.1f)
+        if (inBoatMode)
         {
-            float speed = pStats.totalWalkSpeed;
-            rb.MovePosition(rb.position + movement.normalized * speed * Time.fixedDeltaTime);
+            // Player is locked to seat — boat moves instead
+            // Lock player to seat point exactly
+            if (currentBoat != null)
+            {
+                transform.localPosition = Vector3.zero;
+            }
+            // Actual boat movement is handled in BoatController
+        }
+        else
+        {
+            Vector3 movement = new Vector3(inputVector.x, 0, inputVector.y);
+            if (movement.magnitude > 0.1f)
+            {
+                float speed = pStats.totalWalkSpeed;
+                rb.MovePosition(rb.position +
+                    movement.normalized * speed * Time.fixedDeltaTime);
+            }
         }
     }
 }

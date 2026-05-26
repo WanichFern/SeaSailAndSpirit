@@ -1,11 +1,11 @@
 using UnityEngine;
 using System.Collections;
 
-public class HouseDoor : MonoBehaviour
+public class HouseDoor : MonoBehaviour, IInteractable
 {
-    public Transform destination; // ลากจุดที่จะให้โผล่ไปวาง
+    public Transform destination;
     public Transform player;
-    public SeaSpiritAI seaSpirit; // ลากตัว SeaSpirit มาใส่
+    public SeaSpiritAI seaSpirit;
     public ScreenFader fader;
 
     public void Interact()

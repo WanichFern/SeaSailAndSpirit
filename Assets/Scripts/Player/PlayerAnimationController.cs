@@ -12,29 +12,32 @@ public class PlayerAnimationController : MonoBehaviour
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         playerMovement = GetComponentInParent<PlayerMovement>();
-        rb = GetComponentInParent<Rigidbody>(); // 3D Rigidbody on parent
+        rb = GetComponentInParent<Rigidbody>();
     }
 
     void Update()
     {
         if (rb == null || playerMovement == null) return;
 
-        // Use X and Z velocity since your game moves on the XZ plane
-        float speed = new Vector2(rb.linearVelocity.x, rb.linearVelocity.z).magnitude;
+        float speed = playerMovement.inputVector.magnitude;
         animator.SetFloat("Speed", speed);
 
-        // Flip sprite based on facing direction
         if (Mathf.Abs(playerMovement.FacingDirection) > 0.1f)
             spriteRenderer.flipX = playerMovement.FacingDirection < 0;
     }
 
     public void TriggerAttack()
     {
-        animator.SetBool("IsAttacking", true);
+        animator.SetTrigger("IsAttacking");
     }
 
     public void TriggerGather()
     {
-        animator.SetBool("IsGathering", true);
+        animator.SetTrigger("IsGathering");
+    }
+
+    public void TriggerInteract()
+    {
+        animator.SetTrigger("IsInteracting");
     }
 }

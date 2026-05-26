@@ -12,11 +12,11 @@ public class Requirement
 public class UpgradeLevel
 {
     public List<Requirement> requirements;
-    public string statType;
+    public StatType statType;  // ← was string, now enum
     public float bonusValue;
 }
 
-public class Furniture : MonoBehaviour
+public class Furniture : MonoBehaviour, IInteractable
 {
     public string furnitureName;
     public int currentLevel = 0;
@@ -27,51 +27,74 @@ public class Furniture : MonoBehaviour
     private Transform player;
     public float closeDistance = 3f;
 
-    void Start() { player = GameObject.FindGameObjectWithTag("Player").transform; }
+    void Start()
+    {
+        player = GameObject.FindGameObjectWithTag("Player").transform;
+    }
 
     public void Interact()
     {
         upgradePanel.SetActive(true);
-
         UpgradeUIManager.Instance.OpenUpgradeMenu(this);
     }
 
     public void PerformUpgrade()
     {
-        if (currentLevel >= upgradeLevels.Count) { Debug.Log("Max Level!"); return; }
+        if (currentLevel >= upgradeLevels.Count)
+        {
+            Debug.Log("Max Level!");
+            return;
+        }
 
         UpgradeLevel next = upgradeLevels[currentLevel];
 
-        // 1. ตรวจสอบของ
         foreach (var req in next.requirements)
         {
             if (!ChestInventoryManager.Instance.HasEnoughItems(req.itemName, req.amount))
             {
-                Debug.Log($"not enough {req.itemName}"); return;
+                Debug.Log($"Not enough {req.itemName}");
+                return;
             }
         }
 
-        // 2. หักของ
-        foreach (var req in next.requirements) ChestInventoryManager.Instance.ConsumeItems(req.itemName, req.amount);
+        foreach (var req in next.requirements)
+            ChestInventoryManager.Instance.ConsumeItems(req.itemName, req.amount);
 
-        // 3. เพิ่มโบนัส
-        PlayerStats player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerStats>();
-        if (next.statType == "MaxHP") player.bonusMaxHP += next.bonusValue;
-        else if (next.statType == "Defense") player.bonusDefense += next.bonusValue;
-        else if (next.statType == "SwordDamage") player.bonusSwordDamage += next.bonusValue;
-        else if (next.statType == "AxeDamage") player.bonusAxeDamage += next.bonusValue;
-        else if (next.statType == "PickaxeDamage") player.bonusPickaxeDamage += next.bonusValue;
-        else if (next.statType == "WalkSpeed") player.bonusWalkSpeed += next.bonusValue;
+        PlayerStats playerStats = GameObject
+            .FindGameObjectWithTag("Player")
+            .GetComponent<PlayerStats>();
 
-        // 4. อัปเดต Stats รวม
-        player.CalculateStats();
+        switch (next.statType)
+        {
+            case StatType.MaxHP:
+                playerStats.bonusMaxHP += next.bonusValue;
+                break;
+            case StatType.Defense:
+                playerStats.bonusDefense += next.bonusValue;
+                break;
+            case StatType.SwordDamage:
+                playerStats.bonusSwordDamage += next.bonusValue;
+                break;
+            case StatType.AxeDamage:
+                playerStats.bonusAxeDamage += next.bonusValue;
+                break;
+            case StatType.PickaxeDamage:
+                playerStats.bonusPickaxeDamage += next.bonusValue;
+                break;
+            case StatType.WalkSpeed:
+                playerStats.bonusWalkSpeed += next.bonusValue;
+                break;
+        }
+
+        playerStats.CalculateStats();
         currentLevel++;
-        Debug.Log($"{furnitureName} upgraded! level: {currentLevel}");
+        Debug.Log($"{furnitureName} upgraded to level {currentLevel}!");
     }
 
     void Update()
     {
-        if (upgradePanel.activeSelf && Vector3.Distance(transform.position, player.position) > closeDistance)
+        if (upgradePanel.activeSelf &&
+            Vector3.Distance(transform.position, player.position) > closeDistance)
         {
             upgradePanel.SetActive(false);
         }

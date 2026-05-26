@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CollectibleItem : MonoBehaviour
+public class CollectibleItem : MonoBehaviour, IInteractable
 {
     public string itemName = "Log";
 

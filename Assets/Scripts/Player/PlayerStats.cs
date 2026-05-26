@@ -68,7 +68,9 @@ public class PlayerStats : MonoBehaviour
     {
         Debug.Log("Respawning...");
         transform.position = respawnPoint.position;
-        currentHP = totalMaxHP; // ใช้ค่า total ที่อัปเกรดแล้ว
+        currentHP = totalMaxHP;
         InventoryManager.Instance.ClearInventoryOnDeath();
+
+        BoatController.Instance?.RespawnAtDock();
     }
 }

@@ -28,25 +28,28 @@ public class UpgradeUIManager : MonoBehaviour
         upgradePanel.SetActive(true);
 
         furnitureNameText.text = furniture.furnitureName;
-        levelText.text = $"Level: {furniture.currentLevel} -> {furniture.currentLevel + 1}";
+        levelText.text = $"Level: {furniture.currentLevel} → {furniture.currentLevel + 1}";
 
         if (furniture.currentLevel < furniture.upgradeLevels.Count)
         {
             var nextLevel = furniture.upgradeLevels[furniture.currentLevel];
-            statText.text = $"{nextLevel.statType} + {nextLevel.bonusValue}";
+
+            statText.text = $"{nextLevel.statType} +{nextLevel.bonusValue}";
 
             DrawRequirements(nextLevel.requirements);
         }
         else
         {
             statText.text = "Max Level Reached!";
-            foreach (Transform child in reqContainer) Destroy(child.gameObject);
+            foreach (Transform child in reqContainer)
+                Destroy(child.gameObject);
         }
     }
 
     private void DrawRequirements(List<Requirement> requirements)
     {
-        foreach (Transform child in reqContainer) Destroy(child.gameObject);
+        foreach (Transform child in reqContainer)
+            Destroy(child.gameObject);
 
         foreach (var req in requirements)
         {

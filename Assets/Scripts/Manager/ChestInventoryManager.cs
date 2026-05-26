@@ -39,6 +39,11 @@ public class ChestInventoryManager : MonoBehaviour
         if (chestInventory.ContainsKey(itemName))
         {
             chestInventory[itemName] -= amount;
+
+            if (chestInventory[itemName] <= 0)
+        {
+            chestInventory.Remove(itemName);
+        }
         }
     }
 }

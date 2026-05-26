@@ -1,4 +1,3 @@
-using Mono.Cecil;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,7 +9,6 @@ public class PlayerInteraction : MonoBehaviour
     public static PlayerInteraction Instance;
     private PlayerAnimationController animController;
 
-    // --- เพิ่มตัวจับเวลา Cooldown ---
     private float lastAttackTime = 0f;
     private float lastGatherTime = 0f;
 
@@ -44,76 +42,49 @@ public class PlayerInteraction : MonoBehaviour
 
     void InteractWithNearby()
     {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, interactRange);
+        Collider[] hitColliders = Physics.OverlapSphere(
+            transform.position, interactRange);
+
         foreach (var hitCollider in hitColliders)
         {
-            EnemyAI enemy = hitCollider.GetComponent<EnemyAI>();
-            if (enemy != null)
+            IDamageable damageable = hitCollider.GetComponent<IDamageable>();
+            if (damageable != null)
             {
-                // เช็ค Cooldown การโจมตี
-                if (Time.time >= lastAttackTime + pStats.attackCooldown)
+                EnemyAI enemy = hitCollider.GetComponent<EnemyAI>();
+                if (enemy != null)
                 {
-                    enemy.TakeDamage(pStats.totalSwordDamage);
-                    lastAttackTime = Time.time;
-                    animController?.TriggerAttack();
-                    Debug.Log("Hit Enemy!");
+                    if (Time.time >= lastAttackTime + pStats.attackCooldown)
+                    {
+                        damageable.TakeDamage(pStats.totalSwordDamage);
+                        lastAttackTime = Time.time;
+                        animController?.TriggerAttack();
+                        Debug.Log("Hit Enemy!");
+                    }
+                    return;
                 }
-                return; // ตีโดนแล้ว จบการทำงาน ไม่ไปตีตัวอื่นต่อ
-            }
 
-            ResourceNode resource = hitCollider.GetComponent<ResourceNode>();
-            if (resource != null)
-            {
-                // เช็ค Cooldown การขุด/ตัด
-                if (Time.time >= lastGatherTime + pStats.gatherCooldown)
+                ResourceNode resource = hitCollider.GetComponent<ResourceNode>();
+                if (resource != null)
                 {
-                    // 1. ตรวจสอบประเภทเพื่อดึงค่าดาเมจให้ถูกต้อง
-                    float damageToDeal = 0f;
-                    if (resource.resourceType == ResourceType.Wood)
+                    if (Time.time >= lastGatherTime + pStats.gatherCooldown)
                     {
-                        damageToDeal = pStats.totalAxeDamage;
-                    }
-                    else if (resource.resourceType == ResourceType.Stone)
-                    {
-                        damageToDeal = pStats.totalPickaxeDamage;
-                    }
+                        float damage = resource.resourceType == ResourceType.Wood
+                            ? pStats.totalAxeDamage
+                            : pStats.totalPickaxeDamage;
 
-                    // 2. ส่งค่าดาเมจไปให้ต้นไม้/หิน
-                    resource.TakeHit(damageToDeal);
-                    lastGatherTime = Time.time;
-                    animController?.TriggerGather();
+                        damageable.TakeDamage(damage);
+                        lastGatherTime = Time.time;
+                        animController?.TriggerGather();
+                    }
+                    return;
                 }
-                return;
             }
 
-            // ... (ส่วนการเก็บของ และ HouseDoor ปล่อยไว้เหมือนเดิมได้เลย เพราะไม่มี Cooldown) ...
-
-            CollectibleItem item = hitCollider.GetComponent<CollectibleItem>();
-            if (item != null)
+            IInteractable interactable = hitCollider.GetComponent<IInteractable>();
+            if (interactable != null)
             {
-                bool isPickedUp = InventoryManager.Instance.AddItem(item.itemName, 1);
-                if (isPickedUp) Destroy(hitCollider.gameObject);
-                return;
-            }
-
-            HouseDoor door = hitCollider.GetComponent<HouseDoor>();
-            if (door != null)
-            {
-                door.Interact();
-                return;
-            }
-
-            Chest chest = hitCollider.GetComponent<Chest>();
-            if (chest != null)
-            {
-                chest.Interact();
-                return;
-            }
-
-            Furniture furniture = hitCollider.GetComponent<Furniture>();
-            if (furniture != null)
-            {
-                furniture.Interact();
+                interactable.Interact();
+                animController?.TriggerInteract();
                 return;
             }
         }
