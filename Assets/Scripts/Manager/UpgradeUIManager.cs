@@ -103,7 +103,7 @@ public class UpgradeUIManager : MonoBehaviour
             },
             onFailed: () =>
             {
-                Debug.Log("Ad not completed.");
+                Debug.Log("[Upgrade] Ad closed without reward — upgrade cancelled.");
             }
         );
     }

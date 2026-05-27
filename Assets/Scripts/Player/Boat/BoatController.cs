@@ -50,9 +50,6 @@ public class BoatController : MonoBehaviour
             GameObject.FindGameObjectWithTag("Player");
         playerMovement = playerObj.GetComponent<PlayerMovement>();
 
-        // Decide direction based on boat's CURRENT X position
-        // If boat is close to island → go home
-        // If boat is close to home → go to island
         float distToIsland = Mathf.Abs(
             transform.position.x - islandXPosition);
         float distToHome = Mathf.Abs(
@@ -60,21 +57,18 @@ public class BoatController : MonoBehaviour
 
         if (distToIsland < distToHome)
         {
-            // Boat is near island — sail home
             headingToIsland = false;
             state = BoatState.SailingHome;
-            Debug.Log("Sailing HOME");
+            Debug.Log("Sailing home");
         }
         else
         {
-            // Boat is near home — sail to island
             headingToIsland = true;
             state = BoatState.SailingToIsland;
             IslandGenerator.Instance.GenerateNewIsland();
-            Debug.Log("Sailing to ISLAND");
+            Debug.Log("Sailing to island");
         }
 
-        // Put player on boat
         playerObj.transform.position =
             playerSeatPoint.position + Vector3.up * 0.5f;
         playerObj.transform.SetParent(transform);
@@ -101,7 +95,6 @@ public class BoatController : MonoBehaviour
             pos.x -= sailSpeed * Time.fixedDeltaTime;
         }
 
-        // Vertical input always works while sailing
         pos.z += vertInput * playerMoveSpeed * Time.fixedDeltaTime;
         pos.z = Mathf.Clamp(pos.z,
             centerZ - verticalClamp,
@@ -110,18 +103,14 @@ public class BoatController : MonoBehaviour
         rb.MovePosition(pos);
     }
 
-    // Called by ZoneTrigger — island zone entered
     public void OnReachedIsland()
     {
-        // Only handle if we're actually heading to island
         if (state != BoatState.SailingToIsland) return;
         StartCoroutine(ArriveAtIsland());
     }
 
-    // Called by ZoneTrigger — exited sea zone on home side
     public void OnReachedHome()
     {
-        // Only handle if we're actually heading home
         if (state != BoatState.SailingHome) return;
         StartCoroutine(ArriveAtHome());
     }

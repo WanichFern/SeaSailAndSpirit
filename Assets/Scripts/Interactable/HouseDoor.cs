@@ -22,11 +22,11 @@ public class HouseDoor : MonoBehaviour, IInteractable
             destination.position + new Vector3(1, 1, 0);
 
         InventoryManager.Instance.TransferToChest();
-
-        // Save after items are transferred to chest
+        IslandGenerator.Instance?.ClearDroppedItems();
         SaveManager.Instance?.SaveGame();
 
         yield return new WaitForSeconds(0.5f);
+
         yield return fader.Fade(false);
     }
 }

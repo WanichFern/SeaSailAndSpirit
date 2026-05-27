@@ -17,16 +17,14 @@ public class ChestItemData
 [System.Serializable]
 public class SaveData
 {
-    // Player bonus stats from furniture
+    // Bonus stats from furniture upgrades only
     public float bonusMaxHP;
     public float bonusDefense;
     public float bonusSwordDamage;
     public float bonusAxeDamage;
     public float bonusPickaxeDamage;
     public float bonusWalkSpeed;
-
-    // Player live state
-    public float currentHP;
+    public int bonusInventoryCapacity;
 
     // Furniture levels
     public List<FurnitureSaveData> furnitureLevels

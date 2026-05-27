@@ -17,5 +17,4 @@ public class CharacterStatsSO : BaseStatsSO
 
     [Header("Utility Stats")]
     public int inventoryCapacity = 10;
-    //public float dropRateBonus = 0f; //โอกาสได้ของหายาก
 }

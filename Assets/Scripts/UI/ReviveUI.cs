@@ -26,7 +26,8 @@ public class ReviveUI : MonoBehaviour
     {
         if (!isShowing) return;
 
-        timer -= Time.unscaledDeltaTime;
+        // Use regular deltaTime — no timeScale pausing
+        timer -= Time.deltaTime;
         timerText.text = Mathf.CeilToInt(timer).ToString();
 
         if (timer <= 0)
@@ -41,39 +42,70 @@ public class ReviveUI : MonoBehaviour
         timer = reviveTimeLimit;
         isShowing = true;
         revivePanel.SetActive(true);
-        Time.timeScale = 0f;
+
+        // Don't pause time — just disable player input instead
+        DisablePlayerInput();
+    }
+
+    void DisablePlayerInput()
+    {
+        // Disable movement and interaction while dead
+        PlayerMovement pm = GameObject
+            .FindGameObjectWithTag("Player")
+            ?.GetComponent<PlayerMovement>();
+        if (pm != null) pm.enabled = false;
+
+        PlayerInteraction pi = GameObject
+            .FindGameObjectWithTag("Player")
+            ?.GetComponent<PlayerInteraction>();
+        if (pi != null) pi.enabled = false;
+    }
+
+    void EnablePlayerInput()
+    {
+        PlayerMovement pm = GameObject
+            .FindGameObjectWithTag("Player")
+            ?.GetComponent<PlayerMovement>();
+        if (pm != null) pm.enabled = true;
+
+        PlayerInteraction pi = GameObject
+            .FindGameObjectWithTag("Player")
+            ?.GetComponent<PlayerInteraction>();
+        if (pi != null) pi.enabled = true;
     }
 
     // Called by "Watch Ad" button
     public void OnWatchAdPressed()
     {
-        Time.timeScale = 1f;
         isShowing = false;
         revivePanel.SetActive(false);
 
         bool didShow = RewardedAdController.Instance.TryShowRewarded(
             onRewardGranted: () =>
             {
-                // Full ad watched — revive at half HP
+                EnablePlayerInput();
                 onRevive?.Invoke();
             },
             onFailed: () =>
             {
-                // Closed early — proper death
+                EnablePlayerInput();
                 onDecline?.Invoke();
             }
         );
 
-        // Ad not ready at all — just die
-        if (!didShow) onDecline?.Invoke();
+        if (!didShow)
+        {
+            EnablePlayerInput();
+            onDecline?.Invoke();
+        }
     }
 
     // Called by "Give Up" button
     public void OnDeclinePressed()
     {
-        Time.timeScale = 1f;
         isShowing = false;
         revivePanel.SetActive(false);
+        EnablePlayerInput();
         onDecline?.Invoke();
     }
 }

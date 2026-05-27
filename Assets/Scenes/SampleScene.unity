@@ -2373,7 +2373,7 @@ Transform:
   m_GameObject: {fileID: 435039188}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0.40999985}
+  m_LocalPosition: {x: 0, y: 0.5300007, z: 0.40999985}
   m_LocalScale: {x: 2.5, y: 2.6999998, z: 2.6999998}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3150,7 +3150,7 @@ Transform:
   m_GameObject: {fileID: 499811025}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.58, z: -2.1000023}
+  m_LocalPosition: {x: 0, y: -0.049999297, z: -2.1000023}
   m_LocalScale: {x: 2.6, y: 2.5, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5775,7 +5775,7 @@ RectTransform:
   m_GameObject: {fileID: 999183810}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 0.54, z: 1}
+  m_LocalScale: {x: 2.33, y: 0.6291, z: 1.165}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 81990938}
@@ -5798,7 +5798,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
   m_Padding:
-    m_Left: 40
+    m_Left: 35
     m_Right: 0
     m_Top: 60
     m_Bottom: 0
@@ -5806,7 +5806,7 @@ MonoBehaviour:
   m_StartCorner: 0
   m_StartAxis: 0
   m_CellSize: {x: 0, y: 0}
-  m_Spacing: {x: 30, y: 70}
+  m_Spacing: {x: 25, y: 80}
   m_Constraint: 1
   m_ConstraintCount: 3
 --- !u!1 &1000984389
@@ -9667,7 +9667,7 @@ Transform:
   m_GameObject: {fileID: 1714907473}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 2.58}
+  m_LocalPosition: {x: 0, y: 0.53, z: 2.58}
   m_LocalScale: {x: 2.6, y: 2.5, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10253,7 +10253,7 @@ Transform:
   m_GameObject: {fileID: 1862256216}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.81, y: 8.7319, z: 17.079002}
+  m_LocalPosition: {x: -4.81, y: 8.569, z: 17.079002}
   m_LocalScale: {x: 0.3833327, y: 0.3833327, z: 0.3833327}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -12478,6 +12478,7 @@ GameObject:
   - component: {fileID: 1993611148}
   - component: {fileID: 1993611147}
   - component: {fileID: 1993611146}
+  - component: {fileID: 1993611149}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -12582,7 +12583,7 @@ MonoBehaviour:
   bonusAxeDamage: 0
   bonusPickaxeDamage: 0
   bonusWalkSpeed: 0
-  bonusMaxInventory: 0
+  bonusInventoryCapacity: 0
   totalMaxHP: 0
   totalDefense: 0
   totalSwordDamage: 0
@@ -12607,6 +12608,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   rb: {fileID: 1993611144}
   inputVector: {x: 0, y: 0}
+--- !u!114 &1993611149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1993611142}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94fb3bf58768a38408a22c15b12f3c54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InvincibilityHandler
+  invincibilityDuration: 3
+  blinkInterval: 0.15
+  shieldColor: {r: 0.3, g: 0.6, b: 1, a: 1}
 --- !u!1 &2007539317
 GameObject:
   m_ObjectHideFlags: 0

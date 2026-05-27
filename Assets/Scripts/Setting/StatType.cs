@@ -6,5 +6,5 @@
     AxeDamage,
     PickaxeDamage,
     WalkSpeed,
-    MaxInventory
+    InventoryCapacity
 }

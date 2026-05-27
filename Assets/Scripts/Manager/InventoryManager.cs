@@ -132,8 +132,14 @@ public class InventoryManager : MonoBehaviour
             if (data.itemName == itemName)
             {
                 GameObject player = GameObject.FindGameObjectWithTag("Player");
-                Vector3 spawnPos = player.transform.position + new Vector3(0, 0, -1.5f);
-                Instantiate(data.itemPrefab, spawnPos, Quaternion.identity);
+                Vector3 spawnPos = player.transform.position + new Vector3(0, -0.5f, -1.5f);
+                GameObject dropped = Instantiate(
+                data.itemPrefab, spawnPos, Quaternion.identity);
+
+                if (player.transform.position.x > 50f)
+                {
+                    IslandGenerator.Instance?.RegisterDroppedItem(dropped);
+                }
                 break;
             }
         }

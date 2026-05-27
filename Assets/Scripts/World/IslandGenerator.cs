@@ -220,6 +220,25 @@ public class IslandGenerator : MonoBehaviour
         return new Vector3(150f, 0.5f, 0f);
     }
 
+    public void ClearDroppedItems()
+    {
+        spawnedObjects.RemoveAll(obj => obj == null);
+
+        GameObject[] droppedItems =
+            GameObject.FindGameObjectsWithTag("Item");
+
+        foreach (var item in droppedItems)
+        {
+            if (item.transform.position.x > 50f)
+            {
+                spawnedObjects.Remove(item);
+                Destroy(item);
+            }
+        }
+
+        Debug.Log("Dropped items on island cleared.");
+    }
+
     public void RegisterDroppedItem(GameObject item)
     {
         spawnedObjects.Add(item);

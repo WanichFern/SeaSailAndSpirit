@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Services.LevelPlay;
 using System;
+using System.Collections;
 
 public class RewardedAdController : MonoBehaviour
 {
@@ -10,8 +11,9 @@ public class RewardedAdController : MonoBehaviour
 
     private LevelPlayRewardedAd rewardedAd;
     private bool isReady;
+    private bool rewardWasGranted = false;
     private Action pendingRewardAction;
-    private Action pendingFailAction; // ← added for close-without-reward
+    private Action pendingFailAction;
 
     void Awake() => Instance = this;
 
@@ -34,8 +36,6 @@ public class RewardedAdController : MonoBehaviour
         rewardedAd?.LoadAd();
     }
 
-    // onRewardGranted = player watched full ad
-    // onFailed = player closed early or ad not ready
     public bool TryShowRewarded(Action onRewardGranted,
         Action onFailed = null)
     {
@@ -46,6 +46,7 @@ public class RewardedAdController : MonoBehaviour
             return false;
         }
 
+        rewardWasGranted = false;
         pendingRewardAction = onRewardGranted;
         pendingFailAction = onFailed;
         rewardedAd.ShowAd();
@@ -78,12 +79,16 @@ public class RewardedAdController : MonoBehaviour
         pendingFailAction?.Invoke();
         pendingRewardAction = null;
         pendingFailAction = null;
+        rewardWasGranted = false;
     }
 
     private void OnAdRewarded(LevelPlayAdInfo adInfo,
         LevelPlayReward reward)
     {
         Debug.Log("[Rewarded] Reward granted!");
+        rewardWasGranted = true;
+
+        // Invoke reward immediately when we get it
         pendingRewardAction?.Invoke();
         pendingRewardAction = null;
         pendingFailAction = null;
@@ -99,13 +104,27 @@ public class RewardedAdController : MonoBehaviour
         Debug.Log("[Rewarded] Ad closed.");
         isReady = false;
 
-        // If reward wasn't given, call fail
-        if (pendingFailAction != null)
+        // Wait one frame before checking reward
+        // because OnAdRewarded may fire after OnAdClosed
+        StartCoroutine(DelayedCloseCheck());
+    }
+
+    private IEnumerator DelayedCloseCheck()
+    {
+        // Wait for end of frame so OnAdRewarded
+        // has a chance to fire first if it's coming
+        yield return new WaitForEndOfFrame();
+
+        if (!rewardWasGranted)
         {
-            pendingFailAction.Invoke();
-            pendingRewardAction = null;
-            pendingFailAction = null;
+            Debug.Log("[Rewarded] Closed without reward.");
+            pendingFailAction?.Invoke();
         }
+
+        // Clean up
+        pendingRewardAction = null;
+        pendingFailAction = null;
+        rewardWasGranted = false;
 
         LoadRewarded();
     }

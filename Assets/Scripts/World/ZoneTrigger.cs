@@ -49,14 +49,9 @@ public class ZoneTrigger : MonoBehaviour
                 break;
 
             case Zone.Island:
-                // Nothing needed here anymore
                 break;
         }
     }
 
-    public static void DropIslandCam()
-    {
-        // No longer needed but keeping to avoid errors
-        // in BoatController that calls this
-    }
+    public static void DropIslandCam(){}
 }
