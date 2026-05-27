@@ -23,7 +23,6 @@ public class SaveManager : MonoBehaviour
 
     void Start()
     {
-        // Auto-load on game start
         LoadGame();
     }
 
@@ -131,10 +130,8 @@ public class SaveManager : MonoBehaviour
             pStats.bonusWalkSpeed = data.bonusWalkSpeed;
             pStats.bonusInventoryCapacity = data.bonusInventoryCapacity;
 
-            // Recalculate totals with new bonuses
             pStats.CalculateStats();
 
-            // Always start with full HP regardless of save
             pStats.currentHP = pStats.totalMaxHP;
 
             Debug.Log("[Save] Player stats loaded.");

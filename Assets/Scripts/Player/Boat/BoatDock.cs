@@ -3,8 +3,8 @@ using UnityEngine;
 public class BoatDock : MonoBehaviour
 {
     public Transform boatSpawnPoint;
-    public Transform dockLanding;    // ← add this
-    public ScreenFader fader;        // ← add this
+    public Transform dockLanding;
+    public ScreenFader fader;
     public GameObject boatPrefab;
 
     private BoatController currentBoat;

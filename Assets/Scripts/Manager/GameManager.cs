@@ -5,21 +5,19 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
 
     [Header("UI Panels")]
-    public GameObject hudUI;        // กล่องที่ใส่ปุ่ม Pause และ UI ตอนเล่นปกติ
-    public GameObject pauseMenuUI; // กล่องที่ใส่ปุ่ม Resume (หน้าจอเมนู)
+    public GameObject hudUI; 
+    public GameObject pauseMenuUI;
 
     private bool isPaused = false;
 
     void Awake()
     {
-        // ทำ Singleton เพื่อให้เรียกใช้ GameManager.Instance ได้จากทุกที่
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
 
     void Start()
     {
-        // เริ่มเกมมาให้แน่ใจว่าเมนูหยุดถูกปิด และ UI ปกติถูกเปิด
         ResumeGame();
     }
 

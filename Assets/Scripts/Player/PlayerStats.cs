@@ -28,7 +28,6 @@ public class PlayerStats : MonoBehaviour
     [Header("Live State")]
     public float currentHP;
 
-    // Save where player died for revive
     private Vector3 deathPosition;
 
     void Awake()
@@ -59,7 +58,6 @@ public class PlayerStats : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
-        // Don't take damage while invincible
         if (InvincibilityHandler.Instance != null
             && InvincibilityHandler.Instance.IsInvincible)
         {
@@ -90,7 +88,6 @@ public class PlayerStats : MonoBehaviour
                 currentHP = totalMaxHP * 0.5f;
                 transform.position = deathPosition;
 
-                // Reset to normal 3 second invincibility after revive
                 InvincibilityHandler.Instance?.ActivateInvincibility(3f);
                 Debug.Log("Player revived!");
             },

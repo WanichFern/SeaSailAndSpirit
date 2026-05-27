@@ -1,0 +1,21 @@
+<dependencies>
+  <unityversion>5.6.0.0</unityversion>
+  <androidPackages>
+    <androidPackage spec="com.unity3d.ads-mediation:ogury-adapter:5.3.0">
+    </androidPackage>
+  </androidPackages>
+  <androidPackages>
+    <androidPackage spec="co.ogury:ogury-sdk:6.2.2">
+      <repositories>
+        <repository>https://maven.ogury.co</repository>
+      </repositories>
+    </androidPackage>
+  </androidPackages>
+  <iosPods>
+    <iosPod name="IronSourceOguryAdapter" version="5.4.0.0">
+      <sources>
+        <source>https://github.com/CocoaPods/Specs</source>
+      </sources>
+    </iosPod>
+  </iosPods>
+</dependencies>

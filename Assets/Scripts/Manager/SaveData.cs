@@ -17,7 +17,6 @@ public class ChestItemData
 [System.Serializable]
 public class SaveData
 {
-    // Bonus stats from furniture upgrades only
     public float bonusMaxHP;
     public float bonusDefense;
     public float bonusSwordDamage;
@@ -26,11 +25,9 @@ public class SaveData
     public float bonusWalkSpeed;
     public int bonusInventoryCapacity;
 
-    // Furniture levels
     public List<FurnitureSaveData> furnitureLevels
         = new List<FurnitureSaveData>();
 
-    // Chest inventory
     public List<ChestItemData> chestItems
         = new List<ChestItemData>();
 }

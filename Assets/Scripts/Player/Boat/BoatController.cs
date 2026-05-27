@@ -14,8 +14,8 @@ public class BoatController : MonoBehaviour
     public float centerZ = 0f;
 
     [Header("Island Settings")]
-    public float islandXPosition = 150f; // must match IslandGenerator offset
-    public float homeXPosition = 0f;     // main island X center
+    public float islandXPosition = 150f;
+    public float homeXPosition = 0f;
 
     [Header("References")]
     public Transform playerSeatPoint;
@@ -29,7 +29,6 @@ public class BoatController : MonoBehaviour
     private bool playerOnBoard = false;
     private SpriteRenderer boatSprite;
 
-    // Track which direction we're going clearly
     private bool headingToIsland = true;
 
     public bool IsHeadingToIsland =>

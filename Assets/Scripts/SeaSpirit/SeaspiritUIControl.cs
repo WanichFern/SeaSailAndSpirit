@@ -36,14 +36,12 @@ public class SeaSpiritUIControl : MonoBehaviour, IPointerDownHandler, IPointerUp
             chargingBlueArea.gameObject.SetActive(false);
     }
 
-    // 👉 กดลง
     public void OnPointerDown(PointerEventData eventData)
     {
         startDragPosition = eventData.position;
         isDragging = false;
     }
 
-    // 👉 ลาก
     public void OnDrag(PointerEventData eventData)
     {
         currentDragPosition = eventData.position;
@@ -59,15 +57,12 @@ public class SeaSpiritUIControl : MonoBehaviour, IPointerDownHandler, IPointerUp
 
             Vector2 dir = (currentDragPosition - startDragPosition).normalized;
 
-            // 🎯 ปรับขนาด UI
             UpdateAimVisual(dragDistance);
 
-            // เก็บ direction
             targetDirection = dir;
         }
     }
 
-    // 👉 ปล่อย
     public void OnPointerUp(PointerEventData eventData)
     {
         if (isDragging)

@@ -20,7 +20,19 @@ dependencyResolutionManagement {
 // Android Resolver Repos Start
         def unityProjectPath = $/file:///**DIR_UNITYPROJECT**/$.replace("\\", "/")
         maven {
-            url "https://maven.google.com/" // Assets/LevelPlay/Editor/IronSourceSDKDependencies.xml:12, Assets/LevelPlay/Editor/ISAdMobAdapterDependencies.xml:8
+            url "https://maven.google.com/" // Assets/LevelPlay/Editor/IronSourceSDKDependencies.xml:12, Assets/LevelPlay/Editor/ISAdMobAdapterDependencies.xml:8, Assets/LevelPlay/Editor/ISInMobiAdapterDependencies.xml:16, Assets/LevelPlay/Editor/ISMintegralAdapterDependencies.xml:15
+        }
+        maven {
+            url "https://artifactory.bidmachine.io/bidmachine" // Assets/LevelPlay/Editor/ISBidMachineAdapterDependencies.xml:12
+        }
+        maven {
+            url "https://cboost.jfrog.io/artifactory/chartboost-ads/" // Assets/LevelPlay/Editor/ISChartboostAdapterDependencies.xml:12
+        }
+        maven {
+            url "https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea/" // Assets/LevelPlay/Editor/ISMintegralAdapterDependencies.xml:8
+        }
+        maven {
+            url "https://maven.ogury.co" // Assets/LevelPlay/Editor/ISOguryAdapterDependencies.xml:12
         }
         mavenLocal()
 // Android Resolver Repos End

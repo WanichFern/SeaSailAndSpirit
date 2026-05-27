@@ -8,7 +8,7 @@ public class InvincibilityHandler : MonoBehaviour
     [Header("Settings")]
     public float invincibilityDuration = 3f;
     public float blinkInterval = 0.15f;
-    public Color shieldColor = new Color(0.3f, 0.6f, 1f, 1f); // blue tint
+    public Color shieldColor = new Color(0.3f, 0.6f, 1f, 1f);
 
     private bool isInvincible = false;
     private SpriteRenderer spriteRenderer;
@@ -18,7 +18,6 @@ public class InvincibilityHandler : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        // Get sprite renderer from Player_Visual child
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
     }
 
@@ -27,8 +26,6 @@ public class InvincibilityHandler : MonoBehaviour
         if (isInvincible)
             StopAllCoroutines();
 
-        // If no duration specified, use the default
-        // Pass a long duration for death invincibility
         float actualDuration = duration > 0
             ? duration
             : invincibilityDuration;

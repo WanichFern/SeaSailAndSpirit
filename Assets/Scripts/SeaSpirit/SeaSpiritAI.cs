@@ -1,6 +1,13 @@
 using UnityEngine;
 using System.Collections;
 
+public enum SpiritMode
+{
+    Normal,
+    Collect,
+    Fight
+}
+
 public class SeaSpiritAI : MonoBehaviour
 {
     [Header("Settings")]
@@ -220,7 +227,7 @@ public class SeaSpiritAI : MonoBehaviour
     }
 
     // -----------------------------
-    // ⚡ LUNGE (เชื่อมกับ UI ใหม่)
+    //  LUNGE
     // -----------------------------
 
     public void StartLunge(Vector3 direction, float distance, float speed)

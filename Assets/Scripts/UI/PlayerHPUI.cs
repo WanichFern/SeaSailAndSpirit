@@ -9,7 +9,6 @@ public class PlayerHPUI : MonoBehaviour
 
     void Start()
     {
-        // Fallback auto-assignments if fields are left empty in inspector
         if (playerStats == null) playerStats = Object.FindAnyObjectByType<PlayerStats>();
         if (hpSlider == null) hpSlider = GetComponent<Slider>();
 
@@ -25,7 +24,6 @@ public class PlayerHPUI : MonoBehaviour
     {
         if (playerStats == null || hpSlider == null) return;
 
-        // Prevent division by zero if stats aren't loaded yet
         if (playerStats.totalMaxHP <= 0) return;
 
         // Calculate health percentage between 0.0 and 1.0

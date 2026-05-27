@@ -105,7 +105,6 @@ public class RewardedAdController : MonoBehaviour
         isReady = false;
 
         // Wait one frame before checking reward
-        // because OnAdRewarded may fire after OnAdClosed
         StartCoroutine(DelayedCloseCheck());
     }
 
@@ -121,7 +120,6 @@ public class RewardedAdController : MonoBehaviour
             pendingFailAction?.Invoke();
         }
 
-        // Clean up
         pendingRewardAction = null;
         pendingFailAction = null;
         rewardWasGranted = false;

@@ -83,7 +83,7 @@ public class BoatProximityUI : MonoBehaviour
     {
         if (nearbyBoat != null)
         {
-            nearbyBoat.BoardBoat(); // was Interact()
+            nearbyBoat.BoardBoat();
             HideButton();
         }
     }

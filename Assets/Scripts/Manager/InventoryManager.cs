@@ -19,7 +19,6 @@ public class InventoryManager : MonoBehaviour
     public List<ItemDataSO> itemDatabase = new List<ItemDataSO>();
     public Dictionary<string, int> inventory = new Dictionary<string, int>();
 
-    // Lazy-loaded reference — never goes null silently
     private PlayerStats _pStats;
     private PlayerStats pStats
     {

@@ -78,7 +78,6 @@ public class UpgradeUIManager : MonoBehaviour
         {
             currentFurniture.PerformUpgrade();
             ClosePanel();
-            // Tell furniture to reset its open state
             currentFurniture?.ClosePanel();
         }
     }
